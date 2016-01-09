@@ -23,10 +23,10 @@ typedef struct  //Constitue la structure de l'élément Logement.
 
 typedef struct  //Constitue la structure de l'élément Etudiant.
 {
-	int refetud; //Numéro d'étudiant.
     char nom[20];   //Nom de l'étudiant (ex: Dupont).
     char prenom[20];    //Prénom de l'étudiant (ex: Arthur).
-    int bourse; //Echelon de la bourse de l'étudiant (De 0 à 7 ou -1 si l'étudiant n'a pas le droit aux bourses).
+	int refetud; //Numéro d'étudiant. 
+   int bourse; //Echelon de la bourse de l'étudiant (De 0 à 7 ou -1 si l'étudiant n'a pas le droit aux bourses).
     int handicap;  //Permet de savoir si un étudiant est handicpé ou non (ex: 1 pour Oui et 0 pour Non).
     char refchamb[4];  // Référence de la chambre qu'occupe l'étudiant (ex: A001 ou 0 s'il n'a pas encore de chambre).
 } Etudiant;
