@@ -7,7 +7,7 @@ fgets(c.nom,30,flot);
 c.nom[strlen(c.nom)-1]='\0';
 fgets(c.adresse,30,flot);
 c.adresse[strlen(c.adresse)-1]='\0';
-fscanf(flot,"%d\n%d\n\n%d\n%d\n%d",&c.refcite,&c.chambre,&c.studio,&c.T1,&c.T2);
+fscanf(flot,"%d %d %d %d %d",&c.refcite,&c.chambre,&c.studio,&c.T1,&c.T2);
 return c;
 }
 
@@ -15,11 +15,12 @@ int chargefcite(char *nomfichier,Cite *tcite[])
 {
 int n=0;
 Cite c;
+char line[80];
 FILE *fe;
 fe=fopen(nomfichier,"r");
 if(fe==NULL) {printf("\n Pb ouverture fichier cite.don"); return -1;}
 c=lirecite(fe);
-while (feof(fe)==0)
+while (fgets(line,80,fe) != NULL)
 	{
     tcite[n]=(Cite*)malloc(sizeof(Cite));
     if(tcite==NULL){printf("\n Probleme malloc");return -1;}
@@ -44,14 +45,11 @@ for(i=0;i<nbcite;i++)
 Etudiant lireetudiant(FILE *flot)
 {
 Etudiant e;
-fscanf(flot,"%d",&e.refetud);
 fgets(e.nom,20,flot);
 e.nom[strlen(e.nom)-1]='\0';
 fgets(e.prenom,20,flot);
 e.prenom[strlen(e.prenom)-1]='\0';
-fscanf(flot,"%d \n%d",&e.bourse,&e.handicap);
-fgets(e.refchamb,4,flot);
-e.refchamb[strlen(e.refchamb)-1]='\0';
+fscanf(flot,"%d %d %d %s",&e.refetud,&e.bourse,&e.handicap,e.refchamb);
 return e;
 }
 
@@ -59,11 +57,12 @@ int chargeetudiant(char *nomfichier,Etudiant *tetu[])
 {
 int n=0;
 Etudiant e;
+char line[80];
 FILE *fe;
 fe=fopen(nomfichier,"r");
 if(fe==NULL) {printf("\n Pb ouverture fichier etudiant.don"); return -1;}
 e=lireetudiant(fe);
-while (feof(fe)==0)
+while (fgets(line,80,fe) != NULL)
 	{
     tetu[n]=(Etudiant*)malloc(sizeof(Etudiant));
     if(tetu==NULL){printf("\n Probleme malloc");return -1;}
@@ -81,7 +80,7 @@ int i;
 printf("******Affichage des étudiants******\n");
 for(i=0;i<nbetud;i++)
     {
-    printf("%d \n%s \n%s \n%d \n%d \n%s \n",etu[i]->refetud,etu[i]->nom,etu[i]->prenom,etu[i]->bourse,etu[i]->handicap,etu[i]->refchamb);
+    printf("Nom: %s\nPrénom: %s\nRef : %d\nBourse/Handicap/Refchambre : %d %d %s\n",etu[i]->nom,etu[i]->prenom,etu[i]->refetud,etu[i]->bourse,etu[i]->handicap,etu[i]->refchamb);
     }
 }
 
