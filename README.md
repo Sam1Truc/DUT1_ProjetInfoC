@@ -1,13 +1,9 @@
 # ProjetInfo	
-	Le but est qu'à partir des fichiers : demande.don,cite.don,logement.don on puisse attribuer aux étudiants des logements (ou non, s'il n'y
-a plus de places dispo) et si on lui attribue un logement, alors on inscrira l'étudiant dans le fichier étudiant avec une référence de
-chambre que l'on sera aller chercher dans le fichier logement.don au préalable.
+	Le but est qu'à partir des fichiers : demande.don,cite.don,logement.don on puisse attribuer aux étudiants des logements (ou non, s'il n'y a plus de places dispo) et si on lui attribue un logement, alors on inscrira l'étudiant dans le fichier étudiant avec une référence de chambre que l'on sera aller chercher dans le fichier logement.don au préalable.
 
 	Carnet de fonctionnement du programme :
 	Récupérer tous les fichiers existants (demande.don,cite.don,logement.don) et les charger dans des tableaux séparés.
-	Trier le tableau Tdemande en fonction du handicap(Ils seront les premiers a avoir des logements comme ils ont des logements spéciaux) puis
-en fonction de l'échelon de bourse et enfin, si il y a égalité dans les deux précédentes conditions : on trie en fonction de l'ordre de
-création de la demande (on a ajouté un ordre à la structure Demande). 
+	Trier le tableau Tdemande en fonction du handicap(Ils seront les premiers a avoir des logements comme ils ont des logements spéciaux) puis en fonction de l'échelon de bourse et enfin, si il y a égalité dans les deux précédentes conditions : on trie en fonction de l'ordre de création de la demande (on a ajouté un ordre à la structure Demande). 
 	Une fois le tableau trié, il y aura une fonction qui devra donc attribuer les logements en fonction de leur nombre dans l'ordre croissant
 du tableau Tdemande. A chaque fois qu'un étudiant peut se voir attribuer un logement, on devra inscrire l'étudiant dans le tableau Tétudiants
 puis enlever un logement du type demandé dans le tableau Tcité de la cité demandée et aussi récupérer dans le tableau Tlogements une référence
