@@ -1,5 +1,7 @@
 #include "projet.h"
 
+/***********************************************************************************************/
+
 Cite lirecite(FILE *flot)
 {
 Cite c;
@@ -41,6 +43,8 @@ for(i=0;i<nbcite;i++)
     printf("%s \n%s \n%d \n%d \n%d \n%d \n%d \n",cite[i]->nom,cite[i]->adresse,cite[i]->refcite,cite[i]->chambre,cite[i]->studio,cite[i]->T1,cite[i]->T2);
     }
 }
+
+/***********************************************************************************************/
 
 Etudiant lireetudiant(FILE *flot)
 {
@@ -84,11 +88,73 @@ for(i=0;i<nbetud;i++)
     }
 }
 
+/***********************************************************************************************/
+Demande liredemande(FILE *flot)
+{Demande d;
+d.etud=lireetudiant(flot);
+fscanf(flot,"%d %d %s",&d.ordre,&d.refcite,d.type);
+return d;
+}
+
+int chargedemande(char *nomfichier,Demande *tdem[])
+{
+int n=0;
+Demande dem;
+char line[80];
+FILE *fe;
+fe=fopen(nomfichier,"r");
+if(fe==NULL) {printf("\n Pb ouverture fichier demande.don"); return -1;}
+dem=liredemande(fe);
+while (fgets(line,80,fe) != NULL)
+	{
+    tdem[n]=(Demande*)malloc(sizeof(Demande));
+    if(tdem==NULL){printf("\n Probleme malloc");return -1;}
+	*tdem[n]=dem;
+	dem=liredemande(fe);
+	n++;
+	}
+fclose(fe);
+return n;
+}
+
+void affichedemande(Demande **dem,int nbdem)
+{
+int i;
+printf("******Affichage des demandes******\n");
+for(i=0;i<nbdem;i++)
+    {
+    printf("Nom: %s\nPrénom: %s\nRef : %d\nBourse/Handicap : %d / %d \nOrdre de demande : %d \nRéf Cité: %d \nType Logement demandé : %s\n",dem[i]->etud.nom,dem[i]->etud.prenom,dem[i]->etud.refetud,dem[i]->etud.bourse,dem[i]->etud.handicap,dem[i]->ordre,dem[i]->refcite,dem[i]->type);
+    }
+}
+/***********************************************************************************************/
+
+void Permute(Demande **t,int i,int j)
+{Demande *temp;
+temp=t[i];
+t[i]=t[j];
+t[j]=temp;
+}
+
+void tridemande(Demande **t,int n)
+{int i,k;
+for(k=1;k<n;k++)
+ for(i=n-1;i>=k;i--)
+	{if(t[i]->etud.handicap>t[i-1]->etud.handicap)
+		Permute(t,i,i-1);
+	if(t[i]->etud.handicap==t[i-1]->etud.handicap && t[i]->etud.bourse>t[i-1]->etud.bourse)
+		Permute(t,i,i-1);
+	if(t[i]->etud.bourse==t[i-1]->etud.bourse && t[i]->ordre<t[i-1]->ordre)
+		Permute(t,i,i-1);
+	}
+}
+
+/***********************************************************************************************/
+
 int menu(void)
 {int i;
 printf("\nMenu :");
 printf("\n1)Charger et afficher les cités.");
-printf("\n2)Charger et afficher les étudiants.");
+printf("\n2)Charger,trier et afficher les demandes.");
 printf("\n0)Quitter.");
 printf("\nQue voulez-vous faire :");
 scanf("%d",&i);
@@ -97,9 +163,10 @@ return i;
 
 void global(void)
 {
-int m,nbcite,nbetud;
+int m,nbcite,nbetud,nbdem;
 Cite *tresidence[100];
 Etudiant *tetud[100];
+Demande *tdemande[100];
 m=menu();
 while (m!=0)
 	{
@@ -108,8 +175,9 @@ while (m!=0)
 		affichecite(tresidence,nbcite);
 		}
 	if (m==2)
-		{nbetud=chargeetudiant("etudiant.don",tetud);
-		afficheetudiant(tetud,nbetud);
+		{nbdem=chargedemande("demande.don",tdemande);
+		tridemande(tdemande,nbdem);
+		affichedemande(tdemande,nbdem);
 		}
 	m=menu();
 	}
