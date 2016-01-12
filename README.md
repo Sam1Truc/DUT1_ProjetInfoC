@@ -18,6 +18,7 @@ Créer la fonction Suppresion/Edition qui supprimera un étudiant du tableau Té
   Etat : 0%
 
 Fonction Bonus :
+
 A partir du fichier logement, déterminer le nombre de logements disponibles par cité et par type, donc plus besoin de check le tab cité pour savoir le nb de logement dispo, on aurait un tableau exprès.
   Etat : 0%
   
