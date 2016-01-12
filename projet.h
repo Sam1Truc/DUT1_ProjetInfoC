@@ -34,6 +34,7 @@ typedef struct  //Constitue la structure de l'élément Etudiant.
 typedef struct  //Constitue la structure de l'élément Demande.
 {
     Etudiant etud;   //est constitué de la structure étudiant.
+	int ordre;		//Ordre dans lequel l'étudiant a créé sa demande.
     int refcite;   //Référence de la cité demandée par l'étudiant (ex: 1).
     char type[2];   //Type de logement demandé (ex: C pour Chambre, S pour Studio, T1 et T2).
 } Demande;
