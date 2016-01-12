@@ -40,7 +40,7 @@ int i;
 printf("******Affichage des cités******\n");
 for(i=0;i<nbcite;i++)
     {
-    printf("%s \n%s \n%d \n%d \n%d \n%d \n%d \n",cite[i]->nom,cite[i]->adresse,cite[i]->refcite,cite[i]->chambre,cite[i]->studio,cite[i]->T1,cite[i]->T2);
+    printf("Nom: %s \nAdresse: %s \nRéférence de la cité: %d \nNb de chambre dispo: %d \nNb de studios dispo: %d \nNb de T1 dispo: %d \nNb de T2 dispo: %d\n\n",cite[i]->nom,cite[i]->adresse,cite[i]->refcite,cite[i]->chambre,cite[i]->studio,cite[i]->T1,cite[i]->T2);
     }
 }
 
@@ -126,6 +126,7 @@ for(i=0;i<nbdem;i++)
     printf("Nom: %s\nPrénom: %s\nRef : %d\nBourse/Handicap : %d / %d \nOrdre de demande : %d \nRéf Cité: %d \nType Logement demandé : %s\n",dem[i]->etud.nom,dem[i]->etud.prenom,dem[i]->etud.refetud,dem[i]->etud.bourse,dem[i]->etud.handicap,dem[i]->ordre,dem[i]->refcite,dem[i]->type);
     }
 }
+
 /***********************************************************************************************/
 
 void Permute(Demande **t,int i,int j)
@@ -147,14 +148,67 @@ for(k=1;k<n;k++)
 		Permute(t,i,i-1);
 	}
 }
+/***********************************************************************************************/
+Logement lirelogement(FILE *flot)
+{Logement l;
+fscanf(flot,"%s %d %d %s",l.ref,&l.handicap,&l.etat,l.type);
+return l;
+}
+
+int chargelogement(char *nomfichier,Logement *tlog[])
+{
+int n=0;
+Logement log;
+char line[80];
+FILE *fe;
+fe=fopen(nomfichier,"r");
+if(fe==NULL) {printf("\n Pb ouverture fichier logement.don"); return -1;}
+log=lirelogement(fe);
+while (fgets(line,80,fe) != NULL)
+	{
+    tlog[n]=(Logement*)malloc(sizeof(Logement));
+    if(tlog==NULL){printf("\n Probleme malloc");return -1;}
+	*tlog[n]=log;
+	log=lirelogement(fe);
+	n++;
+	}
+fclose(fe);
+return n;
+}
+
+void affichelogement(Logement **log,int nblog)
+{
+int i;
+printf("******Affichage des logements******\n");
+for(i=0;i<nblog;i++)
+    {
+    printf("Référence cité: %c\nRéférence logement: %s\nHandicap : %d\nEtat : %d \nType logement : %s \n\n",(*log[i]).ref[0],log[i]->ref,log[i]->handicap,log[i]->etat,log[i]->type);
+    }
+}
+
 
 /***********************************************************************************************/
 
+int attribution(Cite **tcite,Logement **tlog,Etudiant **tetud,Demande **tdem,int *nbdem, int *nblog)
+{//On charge au préalable les tableaux par l'action du menu (sauf tetud que l'on va remplir maintenant).
+int i,j;
+
+for (i=0;i<*nbdem;i++)
+	{if
+
+
+
+}
+
+
+/***********************************************************************************************/
 int menu(void)
 {int i;
-printf("\nMenu :");
+printf("Menu :");
 printf("\n1)Charger et afficher les cités.");
 printf("\n2)Charger,trier et afficher les demandes.");
+printf("\n3)Charger et afficher les logements.");
+printf("\n4)Attribuer les logements.");
 printf("\n0)Quitter.");
 printf("\nQue voulez-vous faire :");
 scanf("%d",&i);
@@ -163,23 +217,37 @@ return i;
 
 void global(void)
 {
-int m,nbcite,nbetud,nbdem;
+system("clear");
+int m,nbcite,*nbetud,*nbdem,*nblog;
 Cite *tresidence[100];
 Etudiant *tetud[100];
 Demande *tdemande[100];
+Logement *tlogement[100];
 m=menu();
 while (m!=0)
 	{
 	if (m==1)
-		{nbcite=chargefcite("cite.don",tresidence);
+		{*nbcite=chargefcite("cite.don",tresidence);
 		affichecite(tresidence,nbcite);
 		}
 	if (m==2)
-		{nbdem=chargedemande("demande.don",tdemande);
+		{*nbdem=chargedemande("demande.don",tdemande);
 		tridemande(tdemande,nbdem);
 		affichedemande(tdemande,nbdem);
 		}
+	if (m==3)
+		{*nblog=chargelogement("logement.don",tlogement);
+		affichelogement(tlogement,nblog);
+		}
+	if (m==4)
+		{*nbcite=chargefcite("cite.don",tresidence);
+		*nbdem=chargedemande("demande.don",tdemande);
+		*nblog=chargelogement("logement.don",tlogement);
+		
+		
+		}
 	m=menu();
 	}
+system("clear");
 return;
 }
