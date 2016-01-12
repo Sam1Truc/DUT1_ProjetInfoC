@@ -16,3 +16,8 @@ Créer une fonction qui permette d'inscrire un nouvel étudiant dans le fichier 
 
 Créer la fonction Suppresion/Edition qui supprimera un étudiant du tableau Tétudiants et qui actualisera l'état du logement qu'il occupait ainsi que le nombre de logements de ce type disponibles dans le tableau Tcité et qui sauvegardera le tout dans les fichiers concernés.On relance à nouveau la fonction qui gère les demandes pour attribuer ce nouveau logement libre à un étudiant qui en aurait fait la demande mais qui serait sur liste d'attente pour ne pas laisser le logement vide.
   Etat : 0%
+
+Fonction Bonus :
+A partir du fichier logement, déterminer le nombre de logements disponibles par cité et par type, donc plus besoin de check le tab cité pour savoir le nb de logement dispo, on aurait un tableau exprès.
+  Etat : 0%
+  
