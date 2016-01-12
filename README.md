@@ -1,4 +1,5 @@
-# ProjetInfo	
+ProjetInfo :
+
 	Le but est qu'à partir des fichiers : demande.don,cite.don,logement.don on puisse attribuer aux étudiants des logements (ou non, s'il n'y a plus de places dispo) et si on lui attribue un logement, alors on inscrira l'étudiant dans le fichier étudiant avec une référence de chambre que l'on sera aller chercher dans le fichier logement.don au préalable.
 
 	Carnet de fonctionnement du programme :
