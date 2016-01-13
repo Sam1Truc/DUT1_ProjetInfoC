@@ -34,11 +34,11 @@ fclose(fe);
 return n;
 }
 
-void affichecite(Cite **cite,int nbcite)
+void affichecite(Cite **cite,int *nbcite)
 {
 int i;
 printf("******Affichage des cités******\n");
-for(i=0;i<nbcite;i++)
+for(i=0;i<*nbcite;i++)
     {
     printf("Nom: %s \nAdresse: %s \nRéférence de la cité: %d \nNb de chambre dispo: %d \nNb de studios dispo: %d \nNb de T1 dispo: %d \nNb de T2 dispo: %d\n\n",cite[i]->nom,cite[i]->adresse,cite[i]->refcite,cite[i]->chambre,cite[i]->studio,cite[i]->T1,cite[i]->T2);
     }
@@ -78,11 +78,11 @@ fclose(fe);
 return n;
 }
 
-void afficheetudiant(Etudiant **etu,int nbetud)
+void afficheetudiant(Etudiant **etu,int *nbetud)
 {
 int i;
 printf("******Affichage des étudiants******\n");
-for(i=0;i<nbetud;i++)
+for(i=0;i<*nbetud;i++)
     {
     printf("Nom: %s\nPrénom: %s\nRef : %d\nBourse/Handicap/Refchambre : %d %d %s\n",etu[i]->nom,etu[i]->prenom,etu[i]->refetud,etu[i]->bourse,etu[i]->handicap,etu[i]->refchamb);
     }
@@ -176,11 +176,11 @@ fclose(fe);
 return n;
 }
 
-void affichelogement(Logement **log,int nblog)
+void affichelogement(Logement **log,int *nblog)
 {
 int i;
 printf("******Affichage des logements******\n");
-for(i=0;i<nblog;i++)
+for(i=0;i<*nblog;i++)
     {
     printf("Référence cité: %c\nRéférence logement: %s\nHandicap : %d\nEtat : %d \nType logement : %s \n\n",(*log[i]).ref[0],log[i]->ref,log[i]->handicap,log[i]->etat,log[i]->type);
     }
@@ -189,29 +189,28 @@ for(i=0;i<nblog;i++)
 
 /***********************************************************************************************/
 
-int attribution(Cite **tcite,Logement **tlog,Etudiant **tetud,Demande **tdem,int *nbdem, int *nblog)
+int attribution(Cite **tcite,Logement **tlog,Etudiant **tetud,Demande **tdem,int nbdem, int *nblog)
 {//On charge au préalable les tableaux par l'action du menu (sauf tetud que l'on va remplir maintenant).
 int i,j,k,n;
 
 FILE *fs;
 fs=fopen("etudiant.don","w");
 n=0;
-for (i=0;i<*nbdem;i++)
+for (i=0;i<nbdem;i++)
 	{for(j=0;j<*nblog;j++)
 		{if (tdem[i]->refcite==tlog[j]->ref[0] && tdem[i]->etud.handicap==tlog[j]->handicap && (strcmp(tdem[i]->type,tlog[j]->type)==0))
 			{tlog[j]->etat=1;
 			fprintf(fs,"%s \n %s \n %d \n %d %d \n %s \n",tdem[i]->etud.nom,tdem[i]->etud.prenom,tdem[i]->etud.refetud,tdem[i]->etud.bourse,tdem[i]->etud.handicap,tlog[j]->ref);
 			printf("%s %s a obtenu un logement: %s",tdem[i]->etud.nom,tdem[i]->etud.prenom,tlog[j]->ref);
-			for (k=i;k<*nbdem;k++) {tdem[i]=tdem[i+1];}
+			for (k=i;k<nbdem;k++) {tdem[i]=tdem[i+1];}
 			n++;
 			}
 		}
 	printf("%s %s n'a pas obtenu de logement.",tdem[i]->etud.nom,tdem[i]->etud.prenom);
 	}
 fclose(fs);
-
+return n;
 }
-
 
 /***********************************************************************************************/
 int menu(void)
@@ -230,9 +229,9 @@ return i;
 void global(void)
 {
 system("clear");
-int m,nbcite,*nbetud,*nbdem,*nblog;
+int m,n,*nbcite,*nbetud,nbdem,*nblog;
 Cite *tresidence[100];
-Etudiant *tetud[100];
+Etudiant *tetudiant[100];
 Demande *tdemande[100];
 Logement *tlogement[100];
 m=menu();
@@ -243,7 +242,7 @@ while (m!=0)
 		affichecite(tresidence,nbcite);
 		}
 	if (m==2)
-		{*nbdem=chargedemande("demande.don",tdemande);
+		{nbdem=chargedemande("demande.don",tdemande);
 		tridemande(tdemande,nbdem);
 		affichedemande(tdemande,nbdem);
 		}
@@ -252,10 +251,11 @@ while (m!=0)
 		affichelogement(tlogement,nblog);
 		}
 	if (m==4)
-		{*nbcite=chargefcite("cite.don",tresidence);
-		*nbdem=chargedemande("demande.don",tdemande);
+		{
+		*nbcite=chargefcite("cite.don",tresidence);
+		nbdem=chargedemande("demande.don",tdemande);
 		*nblog=chargelogement("logement.don",tlogement);
-		
+		n=attribution(tresidence,tlogement,tetudiant,tdemande,nbdem,nblog);		
 		
 		}
 	m=menu();
