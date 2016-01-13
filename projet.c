@@ -191,12 +191,24 @@ for(i=0;i<nblog;i++)
 
 int attribution(Cite **tcite,Logement **tlog,Etudiant **tetud,Demande **tdem,int *nbdem, int *nblog)
 {//On charge au préalable les tableaux par l'action du menu (sauf tetud que l'on va remplir maintenant).
-int i,j;
+int i,j,k,n;
 
+FILE *fs;
+fs=fopen("etudiant.don","w");
+n=0;
 for (i=0;i<*nbdem;i++)
-	{if
-
-
+	{for(j=0;j<*nblog;j++)
+		{if (tdem[i]->refcite==tlog[j]->ref[0] && tdem[i]->etud.handicap==tlog[j]->handicap && (strcmp(tdem[i]->type,tlog[j]->type)==0))
+			{tlog[j]->etat=1;
+			fprintf(fs,"%s \n %s \n %d \n %d %d \n %s \n",tdem[i]->etud.nom,tdem[i]->etud.prenom,tdem[i]->etud.refetud,tdem[i]->etud.bourse,tdem[i]->etud.handicap,tlog[j]->ref);
+			printf("%s %s a obtenu un logement: %s",tdem[i]->etud.nom,tdem[i]->etud.prenom,tlog[j]->ref);
+			for (k=i;k<*nbdem;k++) {tdem[i]=tdem[i+1];}
+			n++;
+			}
+		}
+	printf("%s %s n'a pas obtenu de logement.",tdem[i]->etud.nom,tdem[i]->etud.prenom);
+	}
+fclose(fs);
 
 }
 
