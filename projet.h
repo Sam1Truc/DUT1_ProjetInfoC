@@ -7,8 +7,8 @@ typedef struct  //Constitue la structure de l'élément Cité.
     char nom[30];   //Nom de la cité (ex: Dolet).
     char adresse[30];   //Adresse de la cité (ex: 10 Boulevard Paul Locher Lagaye).
     int refcite;   //Référence de la cité (ex: 100).
-	int chambre; //Nombre de chambre disponibiles.
-	int studio; //Nombre de studio disponibiles.
+	int C; //Nombre de chambre disponibiles.
+	int S; //Nombre de studio disponibiles.
 	int T1; //Nombre de studio disponibiles.
 	int T2; //Nombre de studio disponibiles.
 } Cite;
@@ -29,11 +29,12 @@ typedef struct  //Constitue la structure de l'élément Etudiant.
    int bourse; //Echelon de la bourse de l'étudiant (De 0 à 7 ou -1 si l'étudiant n'a pas le droit aux bourses).
     int handicap;  //Permet de savoir si un étudiant est handicpé ou non (ex: 1 pour Oui et 0 pour Non).
     char refchamb[5];  // Référence de la chambre qu'occupe l'étudiant (ex: 1A001)
+} Etudiant;
 
 typedef struct  //Constitue la structure de l'élément Demande.
 {
     Etudiant etud;   //est constitué de la structure étudiant.
 	int ordre;		//Ordre dans lequel l'étudiant a créé sa demande.
-    int refcite;   //Référence de la cité demandée par l'étudiant (ex: 1).
+    char refcite;   //Référence de la cité demandée par l'étudiant (ex: 1).
     char type[2];   //Type de logement demandé (ex: C pour Chambre, S pour Studio, T1 et T2).
 } Demande;
