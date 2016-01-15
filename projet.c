@@ -205,7 +205,7 @@ return e;
 /***********************************************************************************************/
 
 int attribution(Cite **tcite,Logement **tlog,Etudiant **tetud,Demande **tdem,int nbdem, int nblog,int *nbetu)
-{int i,j,n,nbsuppr=0,tsuppr[100],nbetud=0;
+{int i,j,n,nbsuppr=0,tsuppr[100],nbetud=*nbetu;
 Etudiant e;
 
 FILE *fs;
@@ -224,7 +224,8 @@ for (i=0;i<nbdem;i++)
 			printf("\n%s %s a obtenu un logement: %s",tdem[i]->etud.nom,tdem[i]->etud.prenom,tlog[j]->ref);
 
 			tsuppr[nbsuppr]=tdem[i]->etud.refetud;
-			nbsuppr++;		
+			nbsuppr++;	
+			break;	
 			}
 		}
 
@@ -298,7 +299,6 @@ int insertion(char *nom,int nbdem,Demande **tdem,Etudiant **tetu,int nbetu)
 {int i,j,ordre,ref;
 Demande dem;
 ref=tdem[0]->etud.refetud;
-printf("RefEtudMin:%d",ref);
 ordre=tdem[0]->ordre;
 for (i=1;i<nbdem;i++)
 	{if (ordre<tdem[i]->ordre)
@@ -309,8 +309,7 @@ for (i=1;i<nbdem;i++)
 for (j=0;j<nbetu;j++)
 	if (ref<tetu[j]->refetud)
 		ref=tetu[j]->refetud;
-
-printf("RefEtud:%d",ref);	
+	
 ref++;	
 ordre++;
 dem=lireinsertdem(ordre,ref);
@@ -319,17 +318,40 @@ if(tdem[nbdem]==NULL){printf("\n Probleme malloc");return nbdem;}
 *tdem[nbdem]=dem;
 nbdem++;
 
-//Partie sauvegarde (Voir autre fonction).
-/*FILE *fs;
-fs=fopen(nom,"w");
-if(fs==NULL) {printf("Problème d'ouverture du fichier demande.don");return nbdem;}
-for(i=0;i<nbdem;i++)
-	{
-	fprintf(fs,"%s\n%s\n%d\n%d %d %s\n%d %c %s",tdem[i]->etud.nom,tdem[i]->etud.prenom,tdem[i]->etud.refetud,tdem[i]->etud.bourse,tdem[i]->etud.handicap,tdem[i]->etud.refchamb,tdem[i]->ordre,tdem[i]->refcite,tdem[i]->type);
-	}
-
-fclose(fs);*/
 return nbdem;
+}
+/***********************************************************************************************/
+void sauveetudiant(Etudiant **t,int nb)
+{int i;
+FILE *fs;
+fs=fopen("etudiant.don","w");
+for (i=0;i<nb;i++)
+	fprintf(fs,"%s\n%s\n%d\n%d %d %s\n",t[i]->nom,t[i]->prenom,t[i]->refetud,t[i]->bourse,t[i]->handicap,t[i]->refchamb);
+printf("Fichier etudiant.don sauvegardé.\n");
+fclose(fs);
+return;
+}
+
+void sauvelogement(Logement **t,int nb)
+{int i;
+FILE *fs;
+fs=fopen("logement.don","w");
+for (i=0;i<nb;i++)
+	fprintf(fs,"%s %d %d %s\n",t[i]->ref,t[i]->handicap,t[i]->etat,t[i]->type);
+printf("Fichier logement.don sauvegardé.\n");
+fclose(fs);
+return;
+}
+
+void sauvedemande(Demande **t,int nb)
+{int i;
+FILE *fs;
+fs=fopen("demande.don","w");
+for (i=0;i<nb;i++)
+	fprintf(fs,"%s\n%s\n%d\n%d %d %s\n%d %c %s\n",t[i]->etud.nom,t[i]->etud.prenom,t[i]->etud.refetud,t[i]->etud.bourse,t[i]->etud.handicap,t[i]->etud.refchamb,t[i]->ordre,t[i]->refcite,t[i]->type);
+printf("Fichier demande.don sauvegardé.\n");
+fclose(fs);
+return;
 }
 /***********************************************************************************************/
 int menu(void)
@@ -339,8 +361,8 @@ printf("\n1)Charger et afficher les cités.");
 printf("\n2)Charger,trier et afficher les demandes.");
 printf("\n3)Charger et afficher les logements.");
 printf("\n4)Attribuer les logements.");
-printf("\n5)Afficher le tableau des étudiants.");
-printf("\n6)Afficher les demandes.");
+printf("\n5)Afficher la liste des étudiants.");
+printf("\n6)Afficher la liste demandes.");
 printf("\n7)Insérer une nouvelle demande.");
 printf("\n0)Quitter.");
 printf("\nQue voulez-vous faire :");
@@ -367,6 +389,7 @@ while (m!=0)
 		{nbdem=chargedemande("demande.don",tdemande);
 		tridemande(tdemande,nbdem);
 		affichedemande(tdemande,nbdem);
+		sauvedemande(tdemande,nbdem);
 		}
 	if (m==3)
 		{nblog=chargelogement("logement.don",tlogement);
@@ -378,20 +401,31 @@ while (m!=0)
 		nbdem=chargedemande("demande.don",tdemande);
 		tridemande(tdemande,nbdem);
 		nblog=chargelogement("logement.don",tlogement);
+		nbetud=chargeetudiant("etudiant.don",tetudiant);
 		nbdem=attribution(tresidence,tlogement,tetudiant,tdemande,nbdem,nblog,&nbetud);
+		sauvedemande(tdemande,nbdem);
+		sauveetudiant(tetudiant,nbetud);
+		sauvelogement(tlogement,nblog);
 		}
 	if (m==5)
+		{nbetud=chargeetudiant("etudiant.don",tetudiant);
 		afficheetudiant(tetudiant,nbetud);
+		}
 	if (m==6)
+		{nbdem=chargedemande("demande.don",tdemande);
 		affichedemande(tdemande,nbdem);
+		}
 	if (m==7)
 		{
-		//(Pas besoin pour le moment)
-		//nbdem=chargedemande("demande.don",tdemande);
+		nbdem=chargedemande("demande.don",tdemande);
 		affichedemande(tdemande,nbdem);
+		nbetud=chargeetudiant("etudiant.don",tetudiant);
+		afficheetudiant(tetudiant,nbetud);
 		nbdem=insertion("demande.don",nbdem,tdemande,tetudiant,nbetud);
 		tridemande(tdemande,nbdem);
 		affichedemande(tdemande,nbdem);
+		sauvedemande(tdemande,nbdem);
+		sauveetudiant(tetudiant,nbetud);
         }
 	m=menu();
 	}
