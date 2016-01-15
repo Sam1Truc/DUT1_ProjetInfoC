@@ -204,13 +204,10 @@ return e;
 
 /***********************************************************************************************/
 
-int attribution(Cite **tcite,Logement **tlog,Etudiant **tetud,Demande **tdem,int nbdem, int nblog)
-{//On charge au préalable les tableaux par l'action du menu (sauf tetud que l'on va remplir maintenant).
-int i,j,n,nbetud=0;
+int attribution(Cite **tcite,Logement **tlog,Etudiant **tetud,Demande **tdem,int nbdem, int nblog,int *nbetu)
+{int i,j,n,nbsuppr=0,tsuppr[100],nbetud=0;
 Etudiant e;
 
-//On doit utiliser le tableau étudiant et ne pas rentrer en brut dans le fichier étudiant.
-//Utiliser suppression de la demande quand on trouve un logement et afficher via une autre boucle les demandes restantes mises en attente.
 FILE *fs;
 fs=fopen("etudiant.don","w");
 for (i=0;i<nbdem;i++)
@@ -218,66 +215,122 @@ for (i=0;i<nbdem;i++)
 	for(j=0;j<nblog;j++)
 		{if ((tdem[i]->etud.handicap==tlog[j]->handicap) && (strcmp(tdem[i]->type,tlog[j]->type)==0) && (tdem[i]->refcite==(*tlog[j]).ref[0]) && (tlog[j]->etat==0))
 			{tlog[j]->etat=1;
+
 			tetud[nbetud]=(Etudiant*)malloc(sizeof(Etudiant));
-    		if(tlog==NULL){printf("\n Probleme malloc");return -1;}
+    		if(tetud[nbetud]==NULL){printf("\n Probleme malloc");return -1;}
+
 			*tetud[nbetud]=chargeetudemande(tdem[i]->etud.nom,tdem[i]->etud.prenom,tdem[i]->etud.refetud,tdem[i]->etud.bourse,tdem[i]->etud.handicap,tlog[j]->ref);
 			nbetud++;
 			printf("\n%s %s a obtenu un logement: %s",tdem[i]->etud.nom,tdem[i]->etud.prenom,tlog[j]->ref);
-//fonction suppression de de la demande i du tab demande(cf fonctions ci-dessous à adapter)
+
+			tsuppr[nbsuppr]=tdem[i]->etud.refetud;
+			nbsuppr++;		
 			}
 		}
 
+	}
+*nbetu=nbetud;
+//fonction suppression de de la demande i du tab demande(cf fonctions ci-dessous à adapter)
+for (i=0;i<nbsuppr;i++)
+	{nbdem=supprdemande(tdem,nbdem,tsuppr[i]);}
+
 for (i=0;i<nbdem;i++)
 		printf("\n%s %s n'a pas obtenu de logement.",tdem[i]->etud.nom,tdem[i]->etud.prenom);
-	}
 printf("\n\n");
 fclose(fs);
-return nbetud;
+return nbdem;
 }
 
 
 
 /***********************************************************************************************/
 
-int rechdich(char *code,Article **tart,int nbart)
+int rech(int ref,Demande **tdem,int nbdem)
 {
-int deb=0,m,fin;
-fin=nbart-1;
-while (deb<=fin)
-	{
-	m=(deb+fin)/2;
-	if (strcmp(code,tart[m]->ref)<0)
-		fin=m-1;
-	else
-		deb=m+1;
-	}
-return deb;
+int i;
+for (i=0;i<nbdem;i++)
+	if(ref==tdem[i]->etud.refetud) return i;
+return -1;
 }
 
 /***********************************************************************************************/
 
-int supprime(Article **tArtt,int nbart)
+int supprdemande(Demande **tdem,int nbdem,int refetud)
 {int r,i;
-char ref[6],rep[3];
 
-printf("Saisir la référence à supprimer :");
-scanf("%s",ref);
-r=rechdich(ref,tArtt,nbart);
-r=r-1;
-printf("\nLa désignation de l'article est : %s",tArtt[r]->des);
-printf("\nConfirmez-vous cette suppression ? Tapez Oui ou Non :");
-scanf("%s",rep);
-if (strcmp(rep,"Oui")==0)
-	{free(tArtt[r]);
-	for(i=r;i<nbart;i++)
-		tArtt[i]=tArtt[i+1];
-	nbart--;
+r=rech(refetud,tdem,nbdem);
+if (r==-1){printf("\nRéférence étudiant inconnue.");return nbdem;}
+printf("\nLa référence de l'étudiant supprimé est : %d",tdem[r]->etud.refetud);
+free(tdem[r]);
+for(i=r;i<nbdem;i++)
+	{tdem[i]=tdem[i+1];
 	}
-if (strcmp(rep,"Non")==0)
-	printf("\nSuppression annulée !");
-return nbart;
+nbdem--;
+return nbdem;
 }
 
+/***********************************************************************************************/
+Demande lireinsertdem(int ordre,int refetud)
+{Demande d;
+int refcite;
+printf("Entrer le nom de l'étudiant à insérer :");
+scanf("%s",d.etud.nom);
+printf("Entrer le prénom de l'étudiant à insérer :");
+scanf("%s",d.etud.prenom);
+d.etud.refetud=refetud;
+printf("Entrer l'échelon de bourse de l'étudiant :");
+scanf("%d",&d.etud.bourse);
+printf("Entrer l'état d'handicap de l'étudiant (0 ou 1) :");
+scanf("%d",&d.etud.handicap);
+strcpy(d.etud.refchamb,"0");
+d.ordre=ordre;
+printf("Entrer la référence de la cité demandée par l'étudiant :");
+scanf("%d",&refcite);
+d.refcite=refcite+'0';
+printf("Entrer le type de logement demandé par l'étudiant :");
+scanf("%s",d.type);
+
+return d;
+}
+/***********************************************************************************************/
+
+int insertion(char *nom,int nbdem,Demande **tdem,Etudiant **tetu,int nbetu)
+{int i,j,ordre,ref;
+Demande dem;
+ref=tdem[0]->etud.refetud;
+printf("RefEtudMin:%d",ref);
+ordre=tdem[0]->ordre;
+for (i=1;i<nbdem;i++)
+	{if (ordre<tdem[i]->ordre)
+		ordre=tdem[i]->ordre;
+	if(ref<tdem[i]->etud.refetud)
+		ref=tdem[i]->etud.refetud;
+	}
+for (j=0;j<nbetu;j++)
+	if (ref<tetu[j]->refetud)
+		ref=tetu[j]->refetud;
+
+printf("RefEtud:%d",ref);	
+ref++;	
+ordre++;
+dem=lireinsertdem(ordre,ref);
+tdem[nbdem]=(Demande*)malloc(sizeof(Demande));
+if(tdem[nbdem]==NULL){printf("\n Probleme malloc");return nbdem;}
+*tdem[nbdem]=dem;
+nbdem++;
+
+//Partie sauvegarde (Voir autre fonction).
+/*FILE *fs;
+fs=fopen(nom,"w");
+if(fs==NULL) {printf("Problème d'ouverture du fichier demande.don");return nbdem;}
+for(i=0;i<nbdem;i++)
+	{
+	fprintf(fs,"%s\n%s\n%d\n%d %d %s\n%d %c %s",tdem[i]->etud.nom,tdem[i]->etud.prenom,tdem[i]->etud.refetud,tdem[i]->etud.bourse,tdem[i]->etud.handicap,tdem[i]->etud.refchamb,tdem[i]->ordre,tdem[i]->refcite,tdem[i]->type);
+	}
+
+fclose(fs);*/
+return nbdem;
+}
 /***********************************************************************************************/
 int menu(void)
 {int i;
@@ -287,6 +340,8 @@ printf("\n2)Charger,trier et afficher les demandes.");
 printf("\n3)Charger et afficher les logements.");
 printf("\n4)Attribuer les logements.");
 printf("\n5)Afficher le tableau des étudiants.");
+printf("\n6)Afficher les demandes.");
+printf("\n7)Insérer une nouvelle demande.");
 printf("\n0)Quitter.");
 printf("\nQue voulez-vous faire :");
 scanf("%d",&i);
@@ -296,7 +351,7 @@ return i;
 void global(void)
 {
 system("clear");
-int m,nbcite,nbetud,nbdem,nblog;
+int m,nbcite,nbetud,nbdem,nblog,ordre;
 Cite *tresidence[100];
 Etudiant *tetudiant[100];
 Demande *tdemande[100];
@@ -323,12 +378,21 @@ while (m!=0)
 		nbdem=chargedemande("demande.don",tdemande);
 		tridemande(tdemande,nbdem);
 		nblog=chargelogement("logement.don",tlogement);
-		nbetud=attribution(tresidence,tlogement,tetudiant,tdemande,nbdem,nblog);
+		nbdem=attribution(tresidence,tlogement,tetudiant,tdemande,nbdem,nblog,&nbetud);
 		}
 	if (m==5)
-		{
 		afficheetudiant(tetudiant,nbetud);
-		}
+	if (m==6)
+		affichedemande(tdemande,nbdem);
+	if (m==7)
+		{
+		//(Pas besoin pour le moment)
+		//nbdem=chargedemande("demande.don",tdemande);
+		affichedemande(tdemande,nbdem);
+		nbdem=insertion("demande.don",nbdem,tdemande,tetudiant,nbetud);
+		tridemande(tdemande,nbdem);
+		affichedemande(tdemande,nbdem);
+        }
 	m=menu();
 	}
 system("clear");
