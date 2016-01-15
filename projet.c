@@ -362,7 +362,7 @@ printf("\n2)Charger,trier et afficher les demandes.");
 printf("\n3)Charger et afficher les logements.");
 printf("\n4)Attribuer les logements.");
 printf("\n5)Afficher la liste des étudiants.");
-printf("\n6)Afficher la liste demandes.");
+printf("\n6)Afficher la liste des demandes.");
 printf("\n7)Insérer une nouvelle demande.");
 printf("\n0)Quitter.");
 printf("\nQue voulez-vous faire :");
