@@ -321,27 +321,6 @@ nbdem++;
 return nbdem;
 }
 /***********************************************************************************************/
-int supprEtu(Etudiant **tEtu,Logement **tLog, int nbetu,int refetud,int nbLog)
-{
-int a,b,i;
-for (i=0;i<nbetu;i++)
-	if(refetud==tEtu[i]->refetud){b=i;}
-	else printf("\nRéférence non existante");return nbetu;
-for (i=0;i<nbetu;i++)
-	if(tEtu[i]->refchamb==tLog[a]->ref){a=i;}
-	else printf("\nErreur référence chambre");return nbetu;
-tLog[a]->etat=0;
-printf("\nL'étudiant %d va être supprimé",tEtu[b]->refetud);
-free(tEtu[b]);
-for(i=b;i<nbetu;i++)
-	{tEtu[i]=tEtu[i+1];}
-nbetu=nbetu-1;
-sauveetudiant(tEtu, nbetu);
-sauvelogement(tLog, nbLog);
-return nbetu;
-}
-
-/***********************************************************************************************/
 void sauveetudiant(Etudiant **t,int nb)
 {int i;
 FILE *fs;
@@ -364,6 +343,8 @@ fclose(fs);
 return;
 }
 
+/***********************************************************************************************/
+
 void sauvedemande(Demande **t,int nb)
 {int i;
 FILE *fs;
@@ -374,6 +355,26 @@ printf("Fichier demande.don sauvegardé.\n");
 fclose(fs);
 return;
 }
+int supprEtu(Etudiant **tEtu,Logement **tLog, int nbetu,int refetud,int nbLog)
+{
+int a=-1,b=-1,i,d;
+for (i=0;i<nbetu;i++)
+	if(refetud==tEtu[i]->refetud){b=i;}
+if(b==-1){printf("\nRéférence non existante\n");return nbetu;}
+for (i=0;i<nbLog;i++)
+	if(strcmp(tEtu[b]->refchamb,tLog[i]->ref)==0){a=i;}
+if(a==-1){printf("\nErreur référence chambre\n");return nbetu;}
+tLog[a]->etat=0;
+printf("\nL'étudiant dont la référence est %d va être supprimé.\n",tEtu[b]->refetud);
+free(tEtu[b]);
+for(i=b;i<nbetu;i++)
+	{tEtu[i]=tEtu[i+1];}
+nbetu=nbetu-1;
+sauveetudiant(tEtu,nbetu);
+sauvelogement(tLog,nbLog);
+return nbetu;
+}
+
 /***********************************************************************************************/
 int menu(void)
 {int i;
@@ -385,6 +386,7 @@ printf("\n4)Attribuer les logements.");
 printf("\n5)Afficher la liste des étudiants.");
 printf("\n6)Afficher la liste des demandes.");
 printf("\n7)Insérer une nouvelle demande.");
+printf("\n8)Supprimer un étudiant.");
 printf("\n0)Quitter.");
 printf("\nQue voulez-vous faire :");
 scanf("%d",&i);
@@ -394,7 +396,7 @@ return i;
 void global(void)
 {
 system("clear");
-int m,nbcite,nbetud,nbdem,nblog,ordre;
+int m,nbcite,nbetud,nbdem,nblog,ordre,refetud;
 Cite *tresidence[100];
 Etudiant *tetudiant[100];
 Demande *tdemande[100];
@@ -438,6 +440,7 @@ while (m!=0)
 		}
 	if (m==7)
 		{
+		nbcite=chargefcite("cite.don",tresidence);
 		nbdem=chargedemande("demande.don",tdemande);
 		affichedemande(tdemande,nbdem);
 		nbetud=chargeetudiant("etudiant.don",tetudiant);
@@ -447,15 +450,21 @@ while (m!=0)
 		affichedemande(tdemande,nbdem);
 		sauvedemande(tdemande,nbdem);
 		sauveetudiant(tetudiant,nbetud);
-	if (m==8){
+		}
+	if (m==8)
+		{
+		nbdem=chargedemande("demande.don",tdemande);
 		nblog=chargelogement("logement.don",tlogement);
 		nbetud=chargeetudiant("etudiant.don",tetudiant);
+		afficheetudiant(tetudiant,nbetud);
 		printf("\nEntrez la référence de l'étudiant:");
 		scanf("%d",&refetud);
 		supprEtu(tetudiant,tlogement,nbetud,refetud,nblog);
-	}
-        }
-	m=menu();
+		}
+	if (m==7 || m==8)
+		m=4;
+	else	
+		m=menu();
 	}
 system("clear");
 return;
