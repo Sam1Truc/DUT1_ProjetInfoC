@@ -131,7 +131,7 @@ for(i=0;i<nbdem;i++)
 
 /***********************************************************************************************/
 
-void Permute(Demande **t,int i,int j)
+void PermuteDem(Demande **t,int i,int j)
 {Demande *temp;
 temp=t[i];
 t[i]=t[j];
@@ -143,11 +143,11 @@ void tridemande(Demande **t,int n)
 for(k=1;k<n;k++)
  for(i=n-1;i>=k;i--)
 	{if(t[i]->etud.handicap>t[i-1]->etud.handicap)
-		Permute(t,i,i-1);
+		PermuteDem(t,i,i-1);
 	if(t[i]->etud.handicap==t[i-1]->etud.handicap && t[i]->etud.bourse>t[i-1]->etud.bourse)
-		Permute(t,i,i-1);
+		PermuteDem(t,i,i-1);
 	if(t[i]->etud.bourse==t[i-1]->etud.bourse && t[i]->ordre<t[i-1]->ordre)
-		Permute(t,i,i-1);
+		PermuteDem(t,i,i-1);
 	}
 }
 /***********************************************************************************************/
@@ -188,6 +188,15 @@ for(i=0;i<nblog;i++)
     }
 }
 
+void affichelogementdispo(Logement **log,int nblog)
+{
+int i;
+printf("******Affichage des logements disponibles******\n");
+for(i=0;i<nblog;i++)
+    {if (log[i]->etat==0)
+    	printf("Référence cité: %c\nRéférence logement: %s\nHandicap : %d\nEtat : %d \nType logement : %s \n\n",(*log[i]).ref[0],log[i]->ref,log[i]->handicap,log[i]->etat,log[i]->type);
+    }
+}
 /***********************************************************************************************/
 Etudiant chargeetudemande(char *nom,char *prenom,int refetud,int bourse,int handicap,char *refchamb)
 {Etudiant e;
@@ -343,8 +352,6 @@ fclose(fs);
 return;
 }
 
-/***********************************************************************************************/
-
 void sauvedemande(Demande **t,int nb)
 {int i;
 FILE *fs;
@@ -355,6 +362,8 @@ printf("Fichier demande.don sauvegardé.\n");
 fclose(fs);
 return;
 }
+/***********************************************************************************************/
+
 int supprEtu(Etudiant **tEtu,Logement **tLog, int nbetu,int refetud,int nbLog)
 {
 int a=-1,b=-1,i,d;
@@ -374,7 +383,114 @@ sauveetudiant(tEtu,nbetu);
 sauvelogement(tLog,nbLog);
 return nbetu;
 }
+/***********************************************************************************************/
+void PermuteLog(Logement **t,int i,int j)
+{Logement *temp;
+temp=t[i];
+t[i]=t[j];
+t[j]=temp;
+}
 
+void trilogement(Logement **t,int n)
+{
+int i,k;
+for(k=1;k<n;k++)
+ for(i=n-1;i>=k;i--)
+	if(strcmp(t[i]->ref,t[i-1]->ref)<0)
+		PermuteLog(t,i,i-1);
+}
+
+/***********************************************************************************************/
+Logement lireinsertlog(void)
+{Logement l;
+int refcite;
+printf("Entrer la référénce du logement:");
+scanf("%s",l.ref);
+printf("Entrer si la chambre est adaptée pour une personne handicapée (0 pour Non ou 1 pour Oui :");
+scanf("%d",&l.handicap);
+l.etat=0;
+printf("Entrer le type de logement (C,S,T1 ou T2) :");
+scanf("%s",l.type);
+
+return l;
+}
+/***********************************************************************************************/
+int modiflogement(Logement **tlog,int nblog)
+{int i,r=-1,etat=0,handicap=0,reslog;
+char reflog[5],type[2];
+printf("\n1) Modifier un logement disponible.\n2)Ajouter un logement disponible.\nSinon, validez n'importe quelle autre touche pour quitter.\nQue voulez-vous faire :");
+scanf("%d",&reslog);
+
+if (reslog==1)
+	{printf("\nIndiquez la référence du logement à modifier :");
+	scanf("%s",reflog);
+	for (i=0;i<nblog;i++)
+		if ((strcmp(tlog[i]->ref,reflog)==0) && (tlog[i]->etat==0))
+			r=i;
+	if(r==-1){printf("\nLa référence ne correspond pas à un logement disponible.\n");return nblog;}
+	else
+		{printf("\nVoici le logement :\nRéférence: %s\nHandicap: %d\nEtat: %d\nType: %s\n",tlog[r]->ref,tlog[r]->handicap,tlog[r]->etat,tlog[r]->type);
+	printf("\nModification de la chambre %s :",tlog[r]->ref);
+	printf("\nChambre pour handicapé (0 pour Non ou 1 pour Oui):");scanf("%d",&handicap);
+	tlog[r]->handicap=handicap;
+	tlog[r]->etat=0;
+	printf("Type de la chambre (C,S,T1 ou T2):");scanf("%s",type);
+	strcpy(tlog[r]->type,type);
+	printf("\nVoici le logement modifié:\nRéférence: %s\nHandicap: %d\nEtat: %d\nType: %s\n\n",tlog[r]->ref,tlog[r]->handicap,tlog[r]->etat,tlog[r]->type);
+		}
+	}
+if (reslog==2)
+	{Logement log;
+	log=lireinsertlog();
+	for (i=0;i<nblog;i++)
+		if(strcmp(log.ref,tlog[i]->ref)==0)
+			{printf("\nCette référence a déjà été enregistrée. Requête annulée.\n");
+			return nblog;
+			}
+	tlog[nblog]=(Logement*)malloc(sizeof(Logement));
+	if(tlog[nblog]==NULL){printf("\n Probleme malloc");return nblog;}
+	*tlog[nblog]=log;
+	printf("\nVoici le logement ajouté:\nRéférence: %s\nHandicap: %d\nEtat: %d\nType: %s\n\n",tlog[nblog]->ref,tlog[nblog]->handicap,tlog[nblog]->etat,tlog[nblog]->type);
+	nblog++;
+	}	
+
+if (reslog!=1 || reslog!=2)
+	return nblog;
+
+return nblog;
+}
+
+/***********************************************************************************************/
+void PermuteEtud(Etudiant **t,int i,int j)
+{Etudiant *temp;
+temp=t[i];
+t[i]=t[j];
+t[j]=temp;
+}
+
+void trilogementetudiant(Etudiant **t,int n)
+{
+int i,k;
+for(k=1;k<n;k++)
+ for(i=n-1;i>=k;i--)
+	{if(strcmp(t[i]->refchamb,t[i-1]->refchamb)<0)
+		PermuteEtud(t,i,i-1);
+	if(strcmp(t[i]->nom,t[i-1]->nom)<0)
+		PermuteEtud(t,i,i-1);
+	if((strcmp(t[i]->nom,t[i-1]->nom)==0) && (strcmp(t[i]->prenom,t[i-1]->prenom)<0))
+		PermuteEtud(t,i,i-1);
+	}
+}
+/***********************************************************************************************/
+void affichelogementetudiant(Etudiant **tetud,Logement **tlog,int nbetud,int nblog)
+{int i,j;
+for (i=0;i<nbetud;i++)
+	{printf("Nom: %s\nPrénom: %s\nReférence Etudiant : %d\n",tetud[i]->nom,tetud[i]->prenom,tetud[i]->refetud);
+	for (j=0;j<nblog;j++)
+		if(strcmp(tetud[i]->refchamb,tlog[j]->ref)==0)
+			printf("Référence cité: %c\nRéférence logement: %s\nHandicap : %d\nEtat : %d \nType logement : %s \n\n",(*tlog[i]).ref[0],tlog[i]->ref,tlog[i]->handicap,tlog[i]->etat,tlog[i]->type);
+	}
+}
 /***********************************************************************************************/
 int menu(void)
 {int i;
@@ -387,6 +503,8 @@ printf("\n5)Afficher la liste des étudiants.");
 printf("\n6)Afficher la liste des demandes.");
 printf("\n7)Insérer une nouvelle demande.");
 printf("\n8)Supprimer un étudiant.");
+printf("\n9)Editer la liste des chambres disponibles.");
+printf("\n10)Editer la liste des locations en cours.");
 printf("\n0)Quitter.");
 printf("\nQue voulez-vous faire :");
 scanf("%d",&i);
@@ -457,11 +575,30 @@ while (m!=0)
 		nblog=chargelogement("logement.don",tlogement);
 		nbetud=chargeetudiant("etudiant.don",tetudiant);
 		afficheetudiant(tetudiant,nbetud);
-		printf("\nEntrez la référence de l'étudiant:");
+		printf("\nEntrez la référence de l'étudiant à supprimer:");
 		scanf("%d",&refetud);
 		supprEtu(tetudiant,tlogement,nbetud,refetud,nblog);
 		}
-	if (m==7 || m==8)
+	if (m==9)
+		{nblog=chargelogement("logement.don",tlogement);
+		trilogement(tlogement,nblog);
+		affichelogementdispo(tlogement,nblog);
+		sauvelogement(tlogement,nblog);
+		nblog=chargelogement("logement.don",tlogement);
+		nblog=modiflogement(tlogement,nblog);
+		sauvelogement(tlogement,nblog);
+		}
+	if (m==10)
+		{nbetud=chargeetudiant("etudiant.don",tetudiant);
+		nblog=chargelogement("logement.don",tlogement);
+		trilogementetudiant(tetudiant,nbetud);
+		affichelogementetudiant(tetudiant,tlogement,nbetud,nblog);
+		printf("\nEntrez la référence de l'étudiant à supprimer (0 pour ne rien faire):");
+		scanf("%d",&refetud);
+		if (refetud!=0)
+			supprEtu(tetudiant,tlogement,nbetud,refetud,nblog);
+		}
+	if (m==7 || m==8 || m==10)
 		m=4;
 	else	
 		m=menu();
