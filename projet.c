@@ -321,6 +321,27 @@ nbdem++;
 return nbdem;
 }
 /***********************************************************************************************/
+int supprEtu(Etudiant **tEtu,Logement **tLog, int nbetu,int refetud,int nbLog)
+{
+int a,b,i;
+for (i=0;i<nbetu;i++)
+	if(refetud==tEtu[i]->refetud){b=i;}
+	else printf("\nRéférence non existante");return nbetu;
+for (i=0;i<nbetu;i++)
+	if(tEtu[i]->refchamb==tLog[a]->ref){a=i;}
+	else printf("\nErreur référence chambre");return nbetu;
+tLog[a]->etat=0;
+printf("\nL'étudiant %d va être supprimé",tEtu[b]->refetud);
+free(tEtu[b]);
+for(i=b;i<nbetu;i++)
+	{tEtu[i]=tEtu[i+1];}
+nbetu=nbetu-1;
+sauveetudiant(tEtu, nbetu);
+sauvelogement(tLog, nbLog);
+return nbetu;
+}
+
+/***********************************************************************************************/
 void sauveetudiant(Etudiant **t,int nb)
 {int i;
 FILE *fs;
@@ -426,6 +447,13 @@ while (m!=0)
 		affichedemande(tdemande,nbdem);
 		sauvedemande(tdemande,nbdem);
 		sauveetudiant(tetudiant,nbetud);
+	if (m==8){
+		nblog=chargelogement("logement.don",tlogement);
+		nbetud=chargeetudiant("etudiant.don",tetudiant);
+		printf("\nEntrez la référence de l'étudiant:");
+		scanf("%d",&refetud);
+		supprEtu(tetudiant,tlogement,nbetud,refetud,nblog);
+	}
         }
 	m=menu();
 	}
