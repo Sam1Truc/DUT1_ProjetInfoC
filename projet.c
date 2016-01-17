@@ -40,7 +40,7 @@ int i;
 printf("******Affichage des cités******\n");
 for(i=0;i<nbcite;i++)
     {
-    printf("Nom: %s \nAdresse: %s \nRéférence de la cité: %d \nNb de chambre dispo: %d \nNb de studios dispo: %d \nNb de T1 dispo: %d \nNb de T2 dispo: %d\n\n",cite[i]->nom,cite[i]->adresse,cite[i]->refcite,cite[i]->C,cite[i]->S,cite[i]->T1,cite[i]->T2);
+    printf("Nom: %s \nAdresse: %s \nRéférence de la cité: %d \nNb de chambres disponibles: %d \nNb de studios disponibles: %d \nNb de T1 disponibles: %d \nNb de T2 disponibles: %d\n\n",cite[i]->nom,cite[i]->adresse,cite[i]->refcite,cite[i]->C,cite[i]->S,cite[i]->T1,cite[i]->T2);
     }
 }
 
@@ -330,6 +330,17 @@ nbdem++;
 return nbdem;
 }
 /***********************************************************************************************/
+void sauvecite(Cite **t,int nb)
+{int i;
+FILE *fs;
+fs=fopen("cite.don","w");
+for (i=0;i<nb;i++)
+	fprintf(fs,"%s\n%s\n%d %d %d %d %d\n",t[i]->nom,t[i]->adresse,t[i]->refcite,t[i]->C,t[i]->S,t[i]->T1,t[i]->T2);
+printf("Fichier cite.don sauvegardé.\n");
+fclose(fs);
+return;
+}
+
 void sauveetudiant(Etudiant **t,int nb)
 {int i;
 FILE *fs;
@@ -492,6 +503,28 @@ for (i=0;i<nbetud;i++)
 	}
 }
 /***********************************************************************************************/
+void miseajourcitelogdispo(Cite **tcite,Logement **tlog,int nblog,int nbcite)
+{int i,j,c=0,s=0,t1=0,t2=0;
+char refcite;
+for (j=0;j<nbcite;j++)
+	{c=s=t1=t2=0;
+	refcite=tcite[j]->refcite+'0';
+	for (i=0;i<nblog;i++)
+		{if ((((*tlog[i]).ref[0])==refcite) && (tlog[i]->etat==0))
+			{if (strcmp(tlog[i]->type,"C")==0) c++;
+			if (strcmp(tlog[i]->type,"S")==0) s++;
+			if (strcmp(tlog[i]->type,"T1")==0) t1++;
+			if (strcmp(tlog[i]->type,"T2")==0) t2++;
+			}
+		}
+	tcite[j]->C=c;
+	tcite[j]->S=s;
+	tcite[j]->T1=t1;
+	tcite[j]->T2=t2;
+	}
+return;
+}
+/***********************************************************************************************/
 int menu(void)
 {int i;
 printf("Menu :");
@@ -524,7 +557,10 @@ while (m!=0)
 	{
 	if (m==1)
 		{nbcite=chargefcite("cite.don",tresidence);
+		nblog=chargelogement("logement.don",tlogement);
+		miseajourcitelogdispo(tresidence,tlogement,nblog,nbcite);		
 		affichecite(tresidence,nbcite);
+		sauvecite(tresidence,nbcite);
 		}
 	if (m==2)
 		{nbdem=chargedemande("demande.don",tdemande);
@@ -540,10 +576,12 @@ while (m!=0)
 		{
 		nbcite=chargefcite("cite.don",tresidence);
 		nbdem=chargedemande("demande.don",tdemande);
-		tridemande(tdemande,nbdem);
 		nblog=chargelogement("logement.don",tlogement);
 		nbetud=chargeetudiant("etudiant.don",tetudiant);
+		tridemande(tdemande,nbdem);
 		nbdem=attribution(tresidence,tlogement,tetudiant,tdemande,nbdem,nblog,&nbetud);
+		miseajourcitelogdispo(tresidence,tlogement,nblog,nbcite);
+		sauvecite(tresidence,nbcite);
 		sauvedemande(tdemande,nbdem);
 		sauveetudiant(tetudiant,nbetud);
 		sauvelogement(tlogement,nblog);
@@ -580,12 +618,15 @@ while (m!=0)
 		supprEtu(tetudiant,tlogement,nbetud,refetud,nblog);
 		}
 	if (m==9)
-		{nblog=chargelogement("logement.don",tlogement);
+		{nbcite=chargefcite("cite.don",tresidence);
+		nblog=chargelogement("logement.don",tlogement);
 		trilogement(tlogement,nblog);
 		affichelogementdispo(tlogement,nblog);
 		sauvelogement(tlogement,nblog);
 		nblog=chargelogement("logement.don",tlogement);
 		nblog=modiflogement(tlogement,nblog);
+		miseajourcitelogdispo(tresidence,tlogement,nblog,nbcite);
+		sauvecite(tresidence,nbcite);
 		sauvelogement(tlogement,nblog);
 		}
 	if (m==10)
