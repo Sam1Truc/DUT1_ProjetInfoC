@@ -270,7 +270,7 @@ int supprdemande(Demande **tdem,int nbdem,int refetud)
 
 r=rech(refetud,tdem,nbdem);
 if (r==-1){printf("\nRéférence étudiant inconnue.");return nbdem;}
-printf("\nLa référence de l'étudiant supprimé est : %d",tdem[r]->etud.refetud);
+printf("\nLa référence de l'étudiant supprimé des demandes est : %d",tdem[r]->etud.refetud);
 free(tdem[r]);
 for(i=r;i<nbdem;i++)
 	{tdem[i]=tdem[i+1];
@@ -280,31 +280,56 @@ return nbdem;
 }
 
 /***********************************************************************************************/
-Demande lireinsertdem(int ordre,int refetud)
+Demande lireinsertdem(int ordre,int refetud,int nbcite)
 {Demande d;
-int refcite;
+int refcite,verif=0;
 printf("Entrer le nom de l'étudiant à insérer :");
 scanf("%s",d.etud.nom);
 printf("Entrer le prénom de l'étudiant à insérer :");
 scanf("%s",d.etud.prenom);
 d.etud.refetud=refetud;
-printf("Entrer l'échelon de bourse de l'étudiant :");
+printf("Entrer l'échelon de bourse de l'étudiant (0 à 7):");
 scanf("%d",&d.etud.bourse);
+while ((d.etud.bourse<0) || (d.etud.bourse>7))
+	{printf("Erreur de saisie.\n");
+	printf("Entrer l'échelon de bourse de l'étudiant (0 à 7):");
+	scanf("%d",&d.etud.bourse);}
 printf("Entrer l'état d'handicap de l'étudiant (0 ou 1) :");
 scanf("%d",&d.etud.handicap);
+while ((d.etud.handicap<0) || (d.etud.handicap>1))
+	{printf("Erreur de saisie.\n");
+	printf("Entrer l'état d'handicap de l'étudiant (0 ou 1) :");
+	scanf("%d",&d.etud.handicap);}
 strcpy(d.etud.refchamb,"0");
 d.ordre=ordre;
 printf("Entrer la référence de la cité demandée par l'étudiant :");
 scanf("%d",&refcite);
+while ((refcite<=0) || (refcite>nbcite))
+	{printf("Erreur de saisie.\n");
+	printf("Entrer la référence de la cité demandée par l'étudiant :");
+	scanf("%d",&refcite);}
 d.refcite=refcite+'0';
 printf("Entrer le type de logement demandé par l'étudiant :");
 scanf("%s",d.type);
-
+if ((strcmp(d.type,"C")!=0))
+	if ((strcmp(d.type,"S")!=0))
+		if ((strcmp(d.type,"T1")!=0))
+			if ((strcmp(d.type,"T2")!=0))
+				while (verif!=1)
+					{printf("Erreur de saisie.\n");
+					printf("Entrer le type de logement demandé par l'étudiant :");
+					scanf("%s",d.type);
+					if ((strcmp(d.type,"C")==0)) verif=1;
+					if ((strcmp(d.type,"S")==0)) verif=1;
+					if ((strcmp(d.type,"T1")==0)) verif=1;
+					if ((strcmp(d.type,"T2")==0)) verif=1;
+					}
+		
 return d;
 }
 /***********************************************************************************************/
 
-int insertion(char *nom,int nbdem,Demande **tdem,Etudiant **tetu,int nbetu)
+int insertion(char *nom,int nbdem,Demande **tdem,Etudiant **tetu,int nbetu, int nbcite)
 {int i,j,ordre,ref;
 Demande dem;
 ref=tdem[0]->etud.refetud;
@@ -321,7 +346,7 @@ for (j=0;j<nbetu;j++)
 	
 ref++;	
 ordre++;
-dem=lireinsertdem(ordre,ref);
+dem=lireinsertdem(ordre,ref,nbcite);
 tdem[nbdem]=(Demande*)malloc(sizeof(Demande));
 if(tdem[nbdem]==NULL){printf("\n Probleme malloc");return nbdem;}
 *tdem[nbdem]=dem;
@@ -601,7 +626,7 @@ while (m!=0)
 		affichedemande(tdemande,nbdem);
 		nbetud=chargeetudiant("etudiant.don",tetudiant);
 		afficheetudiant(tetudiant,nbetud);
-		nbdem=insertion("demande.don",nbdem,tdemande,tetudiant,nbetud);
+		nbdem=insertion("demande.don",nbdem,tdemande,tetudiant,nbetud,nbcite);
 		tridemande(tdemande,nbdem);
 		affichedemande(tdemande,nbdem);
 		sauvedemande(tdemande,nbdem);
