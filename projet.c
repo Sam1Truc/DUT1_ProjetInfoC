@@ -634,7 +634,6 @@ while (m!=0)
 		}
 	if (m==8)
 		{
-		nbdem=chargedemande("demande.don",tdemande);
 		nblog=chargelogement("logement.don",tlogement);
 		nbetud=chargeetudiant("etudiant.don",tetudiant);
 		afficheetudiant(tetudiant,nbetud);
